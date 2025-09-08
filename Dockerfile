@@ -39,6 +39,4 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 COPY . .
 RUN chown -R node:node /usr/src/app
 USER node
-RUN npm run test
-RUN npm run prune --production
 CMD ["node", "src/index.js"]

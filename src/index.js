@@ -15,11 +15,13 @@ app.put('/items/:id', updateItem);
 app.delete('/items/:id', deleteItem);
 
 db.init().then(() => {
-    app.listen(3000, () => console.log('Listening on port 3000'));
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, "0.0.0.0", () => console.log(`Listening on port ${PORT}`));
 }).catch((err) => {
     console.error(err);
     process.exit(1);
 });
+
 
 const gracefulShutdown = () => {
     db.teardown()

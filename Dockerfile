@@ -17,16 +17,6 @@ RUN chown -R node:node /usr/src/app
 USER node
 CMD npm run dev
 
-# Production
-FROM base as prod
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
-COPY . .
-RUN chown -R node:node /usr/src/app
-USER node
-CMD ["node", "src/index.js"]
 
 # Test
 FROM base as test
@@ -39,3 +29,14 @@ COPY . .
 RUN chown -R node:node /usr/src/app
 USER node
 RUN npm run test
+
+# Production
+FROM base as prod
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    --mount=type=cache,target=/root/.npm \
+    npm ci --omit=dev
+COPY . .
+RUN chown -R node:node /usr/src/app
+USER node
+CMD ["node", "src/index.js"]

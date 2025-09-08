@@ -3,23 +3,32 @@ const fs = require('fs');
 const { Client } = require('pg');
 
 const {
-    POSTGRES_HOST: HOST,
-    POSTGRES_HOST_FILE: HOST_FILE,
-    POSTGRES_USER: USER,
-    POSTGRES_USER_FILE: USER_FILE,
-    POSTGRES_PASSWORD: PASSWORD,
-    POSTGRES_PASSWORD_FILE: PASSWORD_FILE,
-    POSTGRES_DB: DB,
-    POSTGRES_DB_FILE: DB_FILE,
+  DATABASE_URL, // Render cấp sẵn
+  POSTGRES_HOST: HOST,
+  POSTGRES_HOST_FILE: HOST_FILE,
+  POSTGRES_USER: USER,
+  POSTGRES_USER_FILE: USER_FILE,
+  POSTGRES_PASSWORD: PASSWORD,
+  POSTGRES_PASSWORD_FILE: PASSWORD_FILE,
+  POSTGRES_DB: DB,
+  POSTGRES_DB_FILE: DB_FILE,
 } = process.env;
 
 let client;
 
 async function init() {
-    const host = HOST_FILE ? fs.readFileSync(HOST_FILE) : HOST;
-    const user = USER_FILE ? fs.readFileSync(USER_FILE) : USER;
-    const password = PASSWORD_FILE ? fs.readFileSync(PASSWORD_FILE, 'utf8') : PASSWORD;
-    const database = DB_FILE ? fs.readFileSync(DB_FILE) : DB;
+  if (DATABASE_URL) {
+    client = new Client({
+      connectionString: DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    });
+    await client.connect();
+    console.log('✅ Connected to PostgreSQL via DATABASE_URL');
+  } else {
+    const host = HOST_FILE ? fs.readFileSync(HOST_FILE, 'utf8').trim() : HOST;
+    const user = USER_FILE ? fs.readFileSync(USER_FILE, 'utf8').trim() : USER;
+    const password = PASSWORD_FILE ? fs.readFileSync(PASSWORD_FILE, 'utf8').trim() : PASSWORD;
+    const database = DB_FILE ? fs.readFileSync(DB_FILE, 'utf8').trim() : DB;
 
     await waitPort({ 
         host, 
@@ -43,6 +52,7 @@ async function init() {
     }).catch(err => {
         console.error('Unable to connect to the database:', err);
     });
+}
 }
 
 // Get all items from the table

@@ -22,7 +22,8 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     npm ci --omit=dev
 USER node
 COPY . .
-CMD node src/index.js
+CMD ["node", "src/index.js"]
+
 
 FROM base as test
 ENV NODE_ENV test
